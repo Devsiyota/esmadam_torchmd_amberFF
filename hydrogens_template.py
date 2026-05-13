@@ -4,9 +4,9 @@ import math
 import torch
 
 
-# ============================================================
+
 # Residue and atom definitions
-# ============================================================
+
 
 restype_1to3 = {
     "A": "ALA",
@@ -63,9 +63,9 @@ element_to_z = {
 }
 
 
-# ============================================================
+
 # Heavy atom bond templates
-# ============================================================
+
 
 residue_heavy_bonds = {
     "ALA": [("N", "CA"), ("CA", "C"), ("C", "O"), ("CA", "CB")],
@@ -91,9 +91,9 @@ residue_heavy_bonds = {
 }
 
 
-# ============================================================
+
 # Hydrogen templates
-# ============================================================
+
 
 hydrogen_templates = {
     "ALA": {
@@ -226,9 +226,7 @@ hydrogen_templates = {
 }
 
 
-# ============================================================
-# General utilities
-# ============================================================
+
 
 def atom_name_to_atomic_number(atom_name):
     if atom_name == "":
@@ -291,9 +289,7 @@ def write_output_nn_pdb(model_esm, output_nn, filename):
         f.write(pdb_str)
 
 
-# ============================================================
-# Diagnostics
-# ============================================================
+
 
 def diagnose_positions(pos, z, name="pos"):
     print(f"{name} shape:", pos.shape)
@@ -325,9 +321,7 @@ def diagnose_positions(pos, z, name="pos"):
             )
 
 
-# ============================================================
-# Differentiable template hydrogen geometry
-# ============================================================
+
 
 def safe_normalize(v, eps=1e-8):
     norm = torch.linalg.norm(v, dim=-1, keepdim=True)
@@ -888,9 +882,7 @@ def extract_heavy_and_template_hydrogen_pos_z(output_nn_H, z14):
     return all_pos, all_z
 
 
-# ============================================================
-# Debug PDB writer for hydrogens
-# ============================================================
+
 
 def write_pdb_with_template_hydrogens(output_nn_H, sequence, filename):
     pos14 = output_nn_H["positions"][-1, 0].detach().cpu()
@@ -959,12 +951,12 @@ def write_pdb_with_template_hydrogens(output_nn_H, sequence, filename):
 
 
 
-# ============================================================
+
 # AMBER PDB atom-order support
 # These definitions intentionally override the simpler versions above.
 # Use amber_pdb_path="protein_amber.pdb" in add_template_hydrogens_to_output_nn()
 # to store an AMBER-ordered all-atom tensor inside output_nn_H.
-# ============================================================
+
 
 def parse_amber_pdb_atom_order(amber_pdb_path):
     residues = []
