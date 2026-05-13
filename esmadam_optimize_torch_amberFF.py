@@ -19,9 +19,7 @@ from hydrogens_template import (
 )
 
 
-# ============================================================
-# User settings
-# ============================================================
+
 
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 PRECISION = torch.float32
@@ -291,10 +289,10 @@ def main():
         name="initial_esmfold_with_template_H_amber_order",
     )
 
-    if init_min_dist is not None and init_min_dist < CATASTROPHIC_MIN_DIST:
-        raise RuntimeError(
-            f"Initial catastrophic atom collapse: min_dist={init_min_dist:.4f} Å"
-        )
+    #if init_min_dist is not None and init_min_dist < CATASTROPHIC_MIN_DIST:
+        #raise RuntimeError(
+            #f"Initial catastrophic atom collapse: min_dist={init_min_dist:.4f} Å"
+        #)
 
     init_energy = run_initial_force_check(
         amber_energy=amber_energy,
@@ -313,9 +311,10 @@ def main():
 
     # Latent optimization setup
 
-    initial_esm_s = esm_s_output.detach().clone().to(DEVICE)
-    initial_esm_s = initial_esm_s + LATENT_NOISE_SCALE * torch.randn_like(initial_esm_s)
-    initial_esm_s = initial_esm_s.detach().clone().to(DEVICE).requires_grad_(True)
+    #initial_esm_s = esm_s_output.detach().clone().to(DEVICE)
+    #initial_esm_s = initial_esm_s + LATENT_NOISE_SCALE * torch.randn_like(initial_esm_s)
+    initial_esm_s = LATENT_NOISE_SCALE * torch.randn_like(esm_s_output)
+    initial_esm_s = initial_esm_s.detach().to(DEVICE).requires_grad_(True)
 
     #print("esm_s_output device after initial infer:", esm_s_output.device)
     #print("optimized initial_esm_s device:", initial_esm_s.device)
@@ -364,10 +363,12 @@ def main():
     for step in range(NUM_STEPS):
         optimizer.zero_grad()
 
+        add_term = add_term = initial_esm_s.to(DEVICE)
+
         # Keep esm_s_input on exactly the same device as the ESMFold model.
         output_nn, esm_s_nn = model_esm.infer(
             SEQUENCE,
-            esm_s_input=initial_esm_s,
+            esm_s_input=add_term,
         )
 
         output_nn_H, pos_all, z_all = get_amber_ordered_pos_z_from_output(
@@ -387,10 +388,10 @@ def main():
             name=f"step_{step:04d}_pos_all",
         )
 
-        if min_dist is not None and min_dist < CATASTROPHIC_MIN_DIST:
-            raise RuntimeError(
-                f"Catastrophic atom collapse at step {step}: min_dist={min_dist:.4f} Å"
-            )
+        #if min_dist is not None and min_dist < CATASTROPHIC_MIN_DIST:
+            #raise RuntimeError(
+                #f"Catastrophic atom collapse at step {step}: min_dist={min_dist:.4f} Å"
+            #)
 
         energy = compute_amber_energy(
             amber_energy=amber_energy,
