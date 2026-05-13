@@ -40,12 +40,12 @@ LATENT_NOISE_SCALE = 0.1
 # Let the optimizer feel clashes through loss_clash.
 CLASH_CUTOFF = 1.00
 CLASH_WEIGHT = 500.0
-CATASTROPHIC_MIN_DIST = 0.96
+CATASTROPHIC_MIN_DIST = 0.1
 
 CA_WEIGHT = 10.0
 MAX_LATENT_GRAD_NORM = 1.0
 
-OUTPUT_DIR = "latent_accept_torch_amber_outputs_template_H_amber_order"
+OUTPUT_DIR = "Structures"
 SEED = 42
 
 # Same default AMBER/TorchMD terms as torchmd_amber_energy.py.
@@ -61,9 +61,7 @@ AMBER_TERMS = [
 ]
 
 
-# ============================================================
-# Setup helpers
-# ============================================================
+
 
 def seed_everything(seed):
     torch.manual_seed(seed)
@@ -106,9 +104,6 @@ def build_amber_energy_backend():
     return amber_energy
 
 
-# ============================================================
-# Geometry / diagnostics
-# ============================================================
 
 def compute_ca_distances(coords):
     diff_i1 = coords[:, :-1, :] - coords[:, 1:, :]
@@ -309,7 +304,7 @@ def main():
         chain_id="",
     )
 
-    # Latent optimization setup
+
 
     #initial_esm_s = esm_s_output.detach().clone().to(DEVICE)
     #initial_esm_s = initial_esm_s + LATENT_NOISE_SCALE * torch.randn_like(initial_esm_s)
@@ -348,17 +343,7 @@ def main():
     best_output_nn_H = None
     best_step = None
 
-    # Optimization loop
-
-    #print()
-    #print("Starting ESMFold latent optimization using TorchMD AMBER")
-    #print("learning_rate:", LEARNING_RATE)
-    #print("latent_noise_scale:", LATENT_NOISE_SCALE)
-    #print("clash_cutoff:", CLASH_CUTOFF)
-    #print("clash_weight:", CLASH_WEIGHT)
-    #print("ca_weight:", CA_WEIGHT)
-    #print("num_steps:", NUM_STEPS)
-    #print()
+ 
 
     for step in range(NUM_STEPS):
         optimizer.zero_grad()
@@ -498,7 +483,7 @@ def main():
         print("Best loss:", best_loss)
         print("Saved best:", best_pdb)
 
-    print("DONE")
+
 
 
 if __name__ == "__main__":
