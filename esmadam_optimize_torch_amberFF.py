@@ -40,7 +40,7 @@ LATENT_NOISE_SCALE = 0.1
 # Let the optimizer feel clashes through loss_clash.
 CLASH_CUTOFF = 1.00
 CLASH_WEIGHT = 500.0
-CATASTROPHIC_MIN_DIST = 0.05
+CATASTROPHIC_MIN_DIST = 0.96
 
 CA_WEIGHT = 10.0
 MAX_LATENT_GRAD_NORM = 1.0
@@ -363,7 +363,7 @@ def main():
     for step in range(NUM_STEPS):
         optimizer.zero_grad()
 
-        add_term = add_term = initial_esm_s.to(DEVICE)
+        add_term = initial_esm_s.to(DEVICE)
 
         # Keep esm_s_input on exactly the same device as the ESMFold model.
         output_nn, esm_s_nn = model_esm.infer(
