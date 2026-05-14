@@ -35,8 +35,7 @@ NUM_STEPS = 100
 LEARNING_RATE = 5e-3
 LATENT_NOISE_SCALE = 0.9
 
-# Do not use clash detection as a hard kill except for catastrophic collapse.
-# Let the optimizer feel clashes through loss_clash.
+# 
 CLASH_CUTOFF = 1.00
 CLASH_WEIGHT = 500.0
 CATASTROPHIC_MIN_DIST = 0.1
@@ -47,8 +46,7 @@ MAX_LATENT_GRAD_NORM = 1.0
 OUTPUT_DIR = "Structures"
 #SEED = 42
 
-# Same default AMBER/TorchMD terms as torchmd_amber_energy.py.
-# Keep this here only so the optimization run is explicit/reproducible.
+#
 AMBER_TERMS = [
     "bonds",
     "angles",
