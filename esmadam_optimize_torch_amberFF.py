@@ -166,9 +166,10 @@ def compute_clash_loss(pos, cutoff=1.00):
     d = d.masked_fill(eye, 1e6)
 
     clash = F.relu(cutoff - d)
-    loss_clash = torch.mean(clash ** 2)
+    loss_clash_mean = torch.mean(clash ** 2)
+    loss_clash_max = torch.max(clash ** 2)
 
-    return loss_clash
+    return loss_clash_mean + loss_clash_max # this is actually not so usefull, energy term alreadt takes care of clashes
 
 
 def get_amber_ordered_pos_z_from_output(output_nn, sequence, z14):
