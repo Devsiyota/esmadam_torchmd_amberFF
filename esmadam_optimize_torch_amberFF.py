@@ -19,9 +19,6 @@ from hydrogens_template import (
 )
 
 
-# ============================================================
-# User settings
-# ============================================================
 
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 PRECISION = torch.float32
@@ -47,7 +44,7 @@ CATASTROPHIC_MIN_DIST = 0.1
 CA_WEIGHT = 10.0
 MAX_LATENT_GRAD_NORM = 1.0
 
-OUTPUT_DIR = "latent_accept_torch_amber_outputs_template_H_amber_order"
+OUTPUT_DIR = "Structures"
 #SEED = 42
 
 # Same default AMBER/TorchMD terms as torchmd_amber_energy.py.
@@ -63,10 +60,7 @@ AMBER_TERMS = [
 ]
 
 
-# ============================================================
-# Setup helpers
-# ============================================================
-'''
+
 def seed_everything(seed):
     torch.manual_seed(seed)
     random.seed(seed)
@@ -74,7 +68,7 @@ def seed_everything(seed):
 
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
-'''
+
 
 def load_esmfold_model():
     print("Loading ESMFold...")
@@ -108,9 +102,6 @@ def build_amber_energy_backend():
     return amber_energy
 
 
-# ============================================================
-# Geometry / diagnostics
-# ============================================================
 
 def compute_ca_distances(coords):
     diff_i1 = coords[:, :-1, :] - coords[:, 1:, :]
@@ -357,16 +348,6 @@ def main():
     best_step = None
 
     # Optimization loop
-
-    #print()
-    #print("Starting ESMFold latent optimization using TorchMD AMBER")
-    #print("learning_rate:", LEARNING_RATE)
-    #print("latent_noise_scale:", LATENT_NOISE_SCALE)
-    #print("clash_cutoff:", CLASH_CUTOFF)
-    #print("clash_weight:", CLASH_WEIGHT)
-    #print("ca_weight:", CA_WEIGHT)
-    #print("num_steps:", NUM_STEPS)
-    #print()
 
     for step in range(NUM_STEPS):
         optimizer.zero_grad()
