@@ -1,2 +1,2 @@
 # If you have esmadam installed along with torchmd, you can run:
-python esmadam_optimize_torch_amber.py
+python esmadam_optimize_torch_amberFF.py
