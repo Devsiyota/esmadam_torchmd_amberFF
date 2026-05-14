@@ -412,12 +412,10 @@ def main():
         print(
             f"Step {step:04d} | "
             f"loss={loss.item():.6f} | "
-            f"loss_e_per_atom={loss_e.item():.6f} | "
-            f"raw_amber_energy={energy.item():.6f} | "
+            f"Energy={energy.item():.6f} | "
             f"loss_ca={loss_ca.item():.6f} | "
             f"loss_clash={loss_clash.item():.6f} | "
             f"min_dist={min_dist:.4f} | "
-            f"natoms={pos_all.shape[0]}"
         )
 
         loss.backward()
