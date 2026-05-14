@@ -24,7 +24,7 @@ from hydrogens_template import (
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 PRECISION = torch.float32
 
-ESMFOLD_CACHE_DIR = "/depot/chen4116/data/deven_esmfold_checkpoints"
+ESMFOLD_CACHE_DIR = "/depot/chen4116/data/deven_esmfold_checkpoints" # change this if required
 
 SEQUENCE = "TTYKLILNLKQAKEEAIKELVDAGTAEKYFKLIANAKTVEGVWTYKDEIKTFTVTE"
 
