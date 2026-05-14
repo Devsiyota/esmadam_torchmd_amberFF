@@ -19,12 +19,14 @@ from hydrogens_template import (
 )
 
 
-
+# ============================================================
+# User settings
+# ============================================================
 
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 PRECISION = torch.float32
 
-ESMFOLD_CACHE_DIR = "/depot/chen4116/data/deven_esmfold_checkpoints" # change this if required
+ESMFOLD_CACHE_DIR = "/depot/chen4116/data/deven_esmfold_checkpoints"
 
 SEQUENCE = "TTYKLILNLKQAKEEAIKELVDAGTAEKYFKLIANAKTVEGVWTYKDEIKTFTVTE"
 
@@ -34,19 +36,19 @@ PROTEIN_AMBER_PDB = "protein_amber.pdb"
 
 NUM_STEPS = 100
 LEARNING_RATE = 5e-3
-LATENT_NOISE_SCALE = 0.1
+LATENT_NOISE_SCALE = 0.9
 
 # Do not use clash detection as a hard kill except for catastrophic collapse.
 # Let the optimizer feel clashes through loss_clash.
 CLASH_CUTOFF = 1.00
-CLASH_WEIGHT = 1000.0
+CLASH_WEIGHT = 500.0
 CATASTROPHIC_MIN_DIST = 0.1
 
 CA_WEIGHT = 10.0
 MAX_LATENT_GRAD_NORM = 1.0
 
-OUTPUT_DIR = "Structures"
-SEED = 42
+OUTPUT_DIR = "latent_accept_torch_amber_outputs_template_H_amber_order"
+#SEED = 42
 
 # Same default AMBER/TorchMD terms as torchmd_amber_energy.py.
 # Keep this here only so the optimization run is explicit/reproducible.
@@ -61,8 +63,10 @@ AMBER_TERMS = [
 ]
 
 
-
-
+# ============================================================
+# Setup helpers
+# ============================================================
+'''
 def seed_everything(seed):
     torch.manual_seed(seed)
     random.seed(seed)
@@ -70,7 +74,7 @@ def seed_everything(seed):
 
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
-
+'''
 
 def load_esmfold_model():
     print("Loading ESMFold...")
@@ -104,6 +108,9 @@ def build_amber_energy_backend():
     return amber_energy
 
 
+# ============================================================
+# Geometry / diagnostics
+# ============================================================
 
 def compute_ca_distances(coords):
     diff_i1 = coords[:, :-1, :] - coords[:, 1:, :]
@@ -160,16 +167,19 @@ def report_closest_contact(pos, z, name="pos"):
         return min_dist.item()
 
 
+
+
 def compute_clash_loss(pos, cutoff=1.00):
     d = torch.cdist(pos, pos)
     eye = torch.eye(d.shape[0], dtype=torch.bool, device=d.device)
     d = d.masked_fill(eye, 1e6)
 
     clash = F.relu(cutoff - d)
+
     loss_clash_mean = torch.mean(clash ** 2)
     loss_clash_max = torch.max(clash ** 2)
 
-    return loss_clash_mean + loss_clash_max # this is actually not so usefull, energy term alreadt takes care of clashes
+    return loss_clash_max + loss_clash_mean
 
 
 def get_amber_ordered_pos_z_from_output(output_nn, sequence, z14):
@@ -237,7 +247,7 @@ def run_initial_force_check(amber_energy, pos_all):
 
 
 def main():
-    seed_everything(SEED)
+    #seed_everything(SEED)
     torch.autograd.set_detect_anomaly(True)
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -284,11 +294,13 @@ def main():
         z=init_z_all,
         name="initial_esmfold_with_template_H_amber_order",
     )
+    '''
 
-    #if init_min_dist is not None and init_min_dist < CATASTROPHIC_MIN_DIST:
-        #raise RuntimeError(
-            #f"Initial catastrophic atom collapse: min_dist={init_min_dist:.4f} Å"
-        #)
+    if init_min_dist is not None and init_min_dist < CATASTROPHIC_MIN_DIST:
+        raise RuntimeError(
+            f"Initial catastrophic atom collapse: min_dist={init_min_dist:.4f} Å"
+        )
+    '''
 
     init_energy = run_initial_force_check(
         amber_energy=amber_energy,
@@ -305,7 +317,7 @@ def main():
         chain_id="",
     )
 
-
+    # Latent optimization setup
 
     #initial_esm_s = esm_s_output.detach().clone().to(DEVICE)
     #initial_esm_s = initial_esm_s + LATENT_NOISE_SCALE * torch.randn_like(initial_esm_s)
@@ -331,8 +343,8 @@ def main():
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer,
         mode="min",
-        factor=0.5,
-        patience=20,
+        factor=0.9,
+        patience=100,
         verbose=True,
     )
 
@@ -344,7 +356,17 @@ def main():
     best_output_nn_H = None
     best_step = None
 
- 
+    # Optimization loop
+
+    #print()
+    #print("Starting ESMFold latent optimization using TorchMD AMBER")
+    #print("learning_rate:", LEARNING_RATE)
+    #print("latent_noise_scale:", LATENT_NOISE_SCALE)
+    #print("clash_cutoff:", CLASH_CUTOFF)
+    #print("clash_weight:", CLASH_WEIGHT)
+    #print("ca_weight:", CA_WEIGHT)
+    #print("num_steps:", NUM_STEPS)
+    #print()
 
     for step in range(NUM_STEPS):
         optimizer.zero_grad()
@@ -374,10 +396,12 @@ def main():
             name=f"step_{step:04d}_pos_all",
         )
 
-        #if min_dist is not None and min_dist < CATASTROPHIC_MIN_DIST:
-            #raise RuntimeError(
-                #f"Catastrophic atom collapse at step {step}: min_dist={min_dist:.4f} Å"
-            #)
+        '''
+        if min_dist is not None and min_dist < CATASTROPHIC_MIN_DIST:
+            raise RuntimeError(
+                f"Catastrophic atom collapse at step {step}: min_dist={min_dist:.4f} Å"
+            ) 
+        '''
 
         energy = compute_amber_energy(
             amber_energy=amber_energy,
@@ -480,9 +504,9 @@ def main():
         )
         print("Best step:", best_step)
         print("Best loss:", best_loss)
-        print("Saved best:", best_pdb)
+        #print("Saved best:", best_pdb)
 
-
+    #print("DONE")
 
 
 if __name__ == "__main__":
