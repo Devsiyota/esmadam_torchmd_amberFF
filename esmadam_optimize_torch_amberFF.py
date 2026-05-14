@@ -449,8 +449,8 @@ def main():
         scheduler.step(current_loss)
 
         if step % 1 == 0 or step == NUM_STEPS - 1:
-            heavy_pdb = os.path.join(OUTPUT_DIR, f"structure_{step:04d}_heavy.pdb")
-            h_pdb = os.path.join(OUTPUT_DIR, f"structure_{step:04d}_template_H_amber_order.pdb")
+            heavy_pdb = os.path.join(OUTPUT_DIR, f"structure_{step:01d}_heavy.pdb")
+            h_pdb = os.path.join(OUTPUT_DIR, f"structure_{step:01d}_H.pdb")
 
             write_output_nn_pdb(
                 model_esm=model_esm,
@@ -470,7 +470,7 @@ def main():
             #print("Saved:", h_pdb)
 
     if best_output_nn_H is not None:
-        best_pdb = os.path.join(OUTPUT_DIR, "best_template_H_amber_order.pdb")
+        best_pdb = os.path.join(OUTPUT_DIR, "lowest_energy.pdb")
         write_pdb_with_template_hydrogens(
             output_nn_H=best_output_nn_H,
             sequence=SEQUENCE,
