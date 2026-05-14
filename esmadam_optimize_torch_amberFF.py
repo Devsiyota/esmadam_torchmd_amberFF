@@ -39,7 +39,7 @@ LATENT_NOISE_SCALE = 0.1
 # Do not use clash detection as a hard kill except for catastrophic collapse.
 # Let the optimizer feel clashes through loss_clash.
 CLASH_CUTOFF = 1.00
-CLASH_WEIGHT = 500.0
+CLASH_WEIGHT = 1000.0
 CATASTROPHIC_MIN_DIST = 0.1
 
 CA_WEIGHT = 10.0
