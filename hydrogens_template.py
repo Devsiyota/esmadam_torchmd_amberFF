@@ -141,6 +141,7 @@ hydrogen_templates = {
         "CA": (["HA"], "sp3_1", None),
         "CB": (["HB2", "HB3"], "sp3_2", None),
         "ND1": (["HD1"], "sp2_1", None),
+        "NE2": (["HE2"], "sp2_1", None), # Added, if HIS is present as HIE in amber. First please remane HIE to HIS in amber
         "CD2": (["HD2"], "sp2_1", None),
         "CE1": (["HE1"], "sp2_1", None),
     },
